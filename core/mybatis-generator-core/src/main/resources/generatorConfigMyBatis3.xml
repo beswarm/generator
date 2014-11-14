@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <classPathEntry location="G:/workspace/generator/mysqldriver.jar" />
+   <!--  <context id="DB2Tables" targetRuntime="MyBatis3">
+         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                         connectionURL="jdbc:mysql://localhost:3306/beswarm_fable"
+                         userId="root"
+                         password="">
+         </jdbcConnection>
+
+         <javaTypeResolver >
+             <property name="forceBigDecimals" value="false" />
+         </javaTypeResolver>
+
+         <javaModelGenerator targetPackage="test.model" targetProject="mybatis-generator-core/src/main/java/src">
+             <property name="enableSubPackages" value="true" />
+             <property name="trimStrings" value="true" />
+         </javaModelGenerator>
+
+         <sqlMapGenerator targetPackage="test.xml"  targetProject="mybatis-generator-core/src/main/java/src">
+             <property name="enableSubPackages" value="true" />
+         </sqlMapGenerator>
+
+         <javaClientGenerator type="XMLMAPPER" targetPackage="test.dao"  targetProject="mybatis-generator-core/src/main/java/src">
+             <property name="enableSubPackages" value="true" />
+         </javaClientGenerator>
+
+         <table tableName="fable" domainObjectName="Fable" >
+             <property name="useActualColumnNames" value="true"/>
+             &lt;!&ndash;<generatedKey column="ID" sqlStatement="DB2" identity="true" />&ndash;&gt;
+             &lt;!&ndash;    <columnOverride column="DATE_FIELD" property="startDate" />
+                 <ignoreColumn column="FRED" />
+                 <columnOverride column="LONG_VARCHAR_FIELD" jdbcType="VARCHAR" />&ndash;&gt;
+         </table>
+
+
+     </context>-->
+
+    <context id="activityTables">
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://182.140.241.27:3301/actmdb" userId="ua_user" password="uauser0219" >
+        </jdbcConnection>
+
+        <javaModelGenerator targetPackage="com._21cn.member.entity" targetProject="mybatis-generator-core/src/main/java"/>
+
+
+        <sqlMapGenerator targetPackage="com._21cn.member.dao.ibatis.sqlmap" targetProject="mybatis-generator-core/src/main/java" >
+            <property name="databaseVendor" value="mysql" />
+            <!--<property name="abatorConfigFile" value="G:/DEV_INTEGRATE_PLATFORM/doc/能力开放平台/设计/后台配置管理/开发资料/mybatis-generator-core/src/main/java/abatorMysqlActivity.xml" />-->
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com._21cn.member.dao"  targetProject="mybatis-generator-core/src/main/java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+
+      <!--  <daoGenerator type="21cn" targetPackage="com._21cn.member.dao" targetProject="mybatis-generator-core/src/main/java" >
+            <property name="useSpringAnnotation" value="true" />
+            <property name="suppressTypeWarnings" value="true" />
+            <property name="methodNameCalculator" value="default" />
+            <property name="rootInterface" value="com._21cn.framework.base.db.BaseDao" />
+        </daoGenerator>
+
+
+        <serviceGenerator type="21cn" targetPackage="com._21cn.member.service" targetProject="mybatis-generator-core/src/main/java" >
+            <property name="rootInterface" value="com._21cn.framework.base.db.BaseService" />
+            <property name="encoding" value="utf-8" />
+        </serviceGenerator>
+
+        <controllerGenerator type="21CNLigerUI" targetPackage="com._21cn.member.web.controller" targetProject="mybatis-generator-core/src/main/java" >
+            <property name="permission" value="true" />
+            <property name="operateLog" value="true" />
+            <property name="encoding" value="utf-8" />
+            <property name="projectHost" value="manager.open.e.189.cn" />
+            <property name="moduleUrlPrefix" value="/admin" />
+            <property name="methodNameCalculator" value="extended" />
+        </controllerGenerator>
+
+        <jspGenerator type="21CNLigerUI" targetPackage="config" targetProject="mybatis-generator-core/src/main/java" >
+            <property name="projectLabel" value="admin" />
+            <property name="permission" value="true" />
+            <property name="encoding" value="utf-8" />
+            <property name="listTemplateFile" value="abator/list.jsp" />
+            <property name="jsonTemplateFile" value="abator/json.jsp" />
+            <property name="treeTemplateFile" value="abator/tree.jsp" />
+            <property name="editTemplateFile" value="abator/form.jsp" />
+            <property name="showTemplateFile" value="abator/show.jsp" />
+            <property name="listRowImageButtonPath" value="http://static.21cnimg.com/img/icons/content/" />
+            <property name="listBatchImageButtonPath" value="http://static.21cnimg.com/img/icons/silkicons/" />
+            <property name="queryFieldTemplate" >
+                <value ><![CDATA[ <li class="li_search_left">{0}:</li>
+           <li class="li_search_right">{1}</li> ]]></value>
+            </property>
+            <property name="listTitleTemplate" >
+                <value ><![CDATA[<th>{0}</th> ]]></value>
+            </property>
+            <property name="listRowTemplate" >
+                <value ><![CDATA[<tr>{0}</tr> ]]></value>
+            </property>
+            <property name="listFieldTemplate" >
+                <value ><![CDATA[<td>{0}&nbsp;</td> ]]></value>
+            </property>
+            <property name="showFieldTemplate" >
+                <value ><![CDATA[<li class="li_show_left" style="padding-left:30px;">{0}:</li>
+      <li class="li_show_right">{1}&nbsp;</li> ]]></value>
+            </property>
+            <property name="editFieldTemplate" >
+                <value ><![CDATA[<li class="li_show_left" style="padding-left:30px;">{0}:</li>
+           <li class="li_show_right">{1}</li> ]]></value>
+            </property>
+        </jspGenerator>-->
+        <table tableName="t_act_history" domainObjectName="PresentHistory" />
+        <table tableName="t_act_code" domainObjectName="PresentPrivilegeCode"/>
+        <table tableName="t_act_config" domainObjectName="ActivityConfig"  />
+    </context>
+</generatorConfiguration>

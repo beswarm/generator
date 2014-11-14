@@ -9,6 +9,9 @@
 /core/mybatis-generator-core/.project
 /core/mybatis-generator-core/.settings
 /core/mybatis-generator-core/target
+/core/mybatis-generator-core/.idea/
+.idea/
+*.iml
 
 # /core/mybatis-generator-maven-plugin/
 /core/mybatis-generator-maven-plugin/.classpath
@@ -39,3 +42,5 @@
 /core/mybatis-generator-systests-ibatis2-java5/.project
 /core/mybatis-generator-systests-ibatis2-java5/.settings
 /core/mybatis-generator-systests-ibatis2-java5/target
+
+core/.idea

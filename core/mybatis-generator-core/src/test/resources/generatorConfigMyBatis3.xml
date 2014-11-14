@@ -6,7 +6,7 @@
 <generatorConfiguration>
   <!-- This should cause an error because sqlMapGenerator is required
        if there is no javaClientGenerator -->
-  <context id="MyBatis3NoClient" targetRuntime="MyBatis3" defaultModelType="flat">
+ <!-- <context id="MyBatis3NoClient" targetRuntime="MyBatis3" defaultModelType="flat">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 
     <jdbcConnection driverClass="org.hsqldb.jdbcDriver"
@@ -37,7 +37,7 @@
       <columnOverride column="active" javaType="boolean" />
     </table>
   </context>
-
+-->
   <!-- This should cause an error because sqlMapGenerator is required
        for the XMLMAPPER client -->
   <context id="MyBatis3XMLMapper" targetRuntime="MyBatis3" defaultModelType="flat">
@@ -47,13 +47,18 @@
         connectionURL="jdbc:hsqldb:mem:aname"
         userId="sa" />
 
+
     <javaModelGenerator targetPackage="ibatortest.generated.flat.java5.model"
         targetProject="target/generated-sources/mybatis-generator/mybatis3">
       <property name="enableSubPackages" value="true" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
-    
-    <javaClientGenerator type="XMLMAPPER" targetPackage="ibatortest.generated.flat.java5.client"
+
+      <sqlMapGenerator targetPackage="ibatortest.generated.flat.java5.sqlmap"  targetProject="target/generated-sources/mybatis-generator/mybatis3">
+          <property name="enableSubPackages" value="true" />
+      </sqlMapGenerator>
+
+      <javaClientGenerator type="XMLMAPPER" targetPackage="ibatortest.generated.flat.java5.client"
      	targetProject="target/generated-sources/mybatis-generator/mybatis3">
     </javaClientGenerator>
 

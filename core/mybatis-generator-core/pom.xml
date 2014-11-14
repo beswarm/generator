@@ -121,7 +121,7 @@
               <goal>install</goal>
             </goals>
             <configuration>
-              <classifier>cobertura</classifier>
+              <!--<classifier>cobertura</classifier>-->
             </configuration>
           </execution>
         </executions>
