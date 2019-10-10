@@ -1,17 +1,17 @@
-/*
- *  Copyright 2005 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.config;
 
@@ -27,28 +27,27 @@ import java.util.List;
 import java.util.Set;
 
 import org.mybatis.generator.api.CommentGenerator;
+import org.mybatis.generator.api.ConnectionFactory;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.JavaFormatter;
-import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.JavaFormatter;
 import org.mybatis.generator.api.JavaTypeResolver;
+import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.ProgressCallback;
 import org.mybatis.generator.api.XmlFormatter;
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.PluginAggregator;
-import org.mybatis.generator.internal.db.ConnectionFactory;
 import org.mybatis.generator.internal.db.DatabaseIntrospector;
 
-/**
- * @author Jeff Butler
- */
 public class Context extends PropertyHolder {
+
     private String id;
 
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
+
+    private ConnectionFactoryConfiguration connectionFactoryConfiguration;
 
     private SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration;
 
@@ -79,17 +78,13 @@ public class Context extends PropertyHolder {
     private String introspectedColumnImpl;
 
     private Boolean autoDelimitKeywords;
-    
-    private JavaFormatter javaFormatter;
-    
-    private XmlFormatter xmlFormatter;
 
-    /**
-     * Constructs a Context object.
-     * 
-     * @param defaultModelType
-     *            - may be null
-     */
+    private JavaFormatter javaFormatter;
+
+    private XmlFormatter xmlFormatter;
+    
+    private boolean isJava8Targeted = true;
+
     public Context(ModelType defaultModelType) {
         super();
 
@@ -99,8 +94,8 @@ public class Context extends PropertyHolder {
             this.defaultModelType = defaultModelType;
         }
 
-        tableConfigurations = new ArrayList<TableConfiguration>();
-        pluginConfigurations = new ArrayList<PluginConfiguration>();
+        tableConfigurations = new ArrayList<>();
+        pluginConfigurations = new ArrayList<>();
     }
 
     public void addTableConfiguration(TableConfiguration tc) {
@@ -133,20 +128,27 @@ public class Context extends PropertyHolder {
     }
 
     /**
-     * This method does a simple validate, it makes sure that all required
-     * fields have been filled in. It does not do any more complex operations
-     * such as validating that database tables exist or validating that named
-     * columns exist
+     * This method does a simple validate, it makes sure that all required fields have been filled in. It does not do
+     * any more complex operations such as validating that database tables exist or validating that named columns exist
+     *
+     * @param errors
+     *            the errors
      */
     public void validate(List<String> errors) {
         if (!stringHasValue(id)) {
             errors.add(getString("ValidationError.16")); //$NON-NLS-1$
         }
 
-        if (jdbcConnectionConfiguration == null) {
+        if (jdbcConnectionConfiguration == null && connectionFactoryConfiguration == null) {
+            // must specify one
             errors.add(getString("ValidationError.10", id)); //$NON-NLS-1$
-        } else {
+        } else if (jdbcConnectionConfiguration != null && connectionFactoryConfiguration != null) {
+            // must not specify both
+            errors.add(getString("ValidationError.10", id)); //$NON-NLS-1$
+        } else if (jdbcConnectionConfiguration != null) {
             jdbcConnectionConfiguration.validate(errors);
+        } else {
+            connectionFactoryConfiguration.validate(errors);
         }
 
         if (javaModelGeneratorConfiguration == null) {
@@ -165,7 +167,7 @@ public class Context extends PropertyHolder {
         } catch (Exception e) {
             errors.add(getString("ValidationError.25", id)); //$NON-NLS-1$
         }
-        
+
         if (it != null && it.requiresXMLGenerator()) {
             if (sqlMapGeneratorConfiguration == null) {
                 errors.add(getString("ValidationError.9", id)); //$NON-NLS-1$
@@ -174,7 +176,7 @@ public class Context extends PropertyHolder {
             }
         }
 
-        if (tableConfigurations.size() == 0) {
+        if (tableConfigurations.isEmpty()) {
             errors.add(getString("ValidationError.3", id)); //$NON-NLS-1$
         } else {
             for (int i = 0; i < tableConfigurations.size(); i++) {
@@ -226,71 +228,6 @@ public class Context extends PropertyHolder {
         return defaultModelType;
     }
 
-    /**
-     * Builds an XmlElement representation of this context. Note that the XML
-     * may not necessarily validate if the context is invalid. Call the
-     * <code>validate</code> method to check validity of this context.
-     * 
-     * @return the XML representation of this context
-     */
-    public XmlElement toXmlElement() {
-        XmlElement xmlElement = new XmlElement("context"); //$NON-NLS-1$
-        
-        xmlElement.addAttribute(new Attribute("id", id)); //$NON-NLS-1$
-        
-        if (defaultModelType != ModelType.CONDITIONAL) {
-            xmlElement.addAttribute(new Attribute(
-                    "defaultModelType", defaultModelType.getModelType())); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(introspectedColumnImpl)) {
-            xmlElement.addAttribute(new Attribute(
-                    "introspectedColumnImpl", introspectedColumnImpl)); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(targetRuntime)) {
-            xmlElement.addAttribute(new Attribute(
-                    "targetRuntime", targetRuntime)); //$NON-NLS-1$
-        }
-
-        addPropertyXmlElements(xmlElement);
-        
-        for (PluginConfiguration pluginConfiguration : pluginConfigurations) {
-            xmlElement.addElement(pluginConfiguration.toXmlElement());
-        }
-
-        if (commentGeneratorConfiguration != null) {
-            xmlElement.addElement(commentGeneratorConfiguration.toXmlElement());
-        }
-
-        if (jdbcConnectionConfiguration != null) {
-            xmlElement.addElement(jdbcConnectionConfiguration.toXmlElement());
-        }
-
-        if (javaTypeResolverConfiguration != null) {
-            xmlElement.addElement(javaTypeResolverConfiguration.toXmlElement());
-        }
-
-        if (javaModelGeneratorConfiguration != null) {
-            xmlElement.addElement(javaModelGeneratorConfiguration
-                    .toXmlElement());
-        }
-
-        if (sqlMapGeneratorConfiguration != null) {
-            xmlElement.addElement(sqlMapGeneratorConfiguration.toXmlElement());
-        }
-
-        if (javaClientGeneratorConfiguration != null) {
-            xmlElement.addElement(javaClientGeneratorConfiguration.toXmlElement());
-        }
-
-        for (TableConfiguration tableConfiguration : tableConfigurations) {
-            xmlElement.addElement(tableConfiguration.toXmlElement());
-        }
-
-        return xmlElement;
-    }
-
     public List<TableConfiguration> getTableConfigurations() {
         return tableConfigurations;
     }
@@ -311,10 +248,12 @@ public class Context extends PropertyHolder {
             beginningDelimiter = value;
         } else if (PropertyRegistry.CONTEXT_ENDING_DELIMITER.equals(name)) {
             endingDelimiter = value;
-        } else if (PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS.equals(name)) {
-            if (stringHasValue(value)) {
-                autoDelimitKeywords = new Boolean(isTrue(value));
-            }
+        } else if (PropertyRegistry.CONTEXT_AUTO_DELIMIT_KEYWORDS.equals(name)
+                && stringHasValue(value)) {
+            autoDelimitKeywords = isTrue(value);
+        } else if (PropertyRegistry.CONTEXT_TARGET_JAVA8.equals(name)
+                && stringHasValue(value)) {
+            isJava8Targeted = isTrue(value);
         }
     }
 
@@ -333,7 +272,7 @@ public class Context extends PropertyHolder {
 
         return javaFormatter;
     }
-    
+
     public XmlFormatter getXmlFormatter() {
         if (xmlFormatter == null) {
             xmlFormatter = ObjectFactory.createXmlFormatter(this);
@@ -341,7 +280,7 @@ public class Context extends PropertyHolder {
 
         return xmlFormatter;
     }
-    
+
     public CommentGeneratorConfiguration getCommentGeneratorConfiguration() {
         return commentGeneratorConfiguration;
     }
@@ -425,7 +364,7 @@ public class Context extends PropertyHolder {
             List<String> warnings, Set<String> fullyQualifiedTableNames)
             throws SQLException, InterruptedException {
 
-        introspectedTables = new ArrayList<IntrospectedTable>();
+        introspectedTables = new ArrayList<>();
         JavaTypeResolver javaTypeResolver = ObjectFactory
                 .createJavaTypeResolver(this, warnings);
 
@@ -443,10 +382,9 @@ public class Context extends PropertyHolder {
                                 .getSchema(), tc.getTableName(), '.');
 
                 if (fullyQualifiedTableNames != null
-                        && fullyQualifiedTableNames.size() > 0) {
-                    if (!fullyQualifiedTableNames.contains(tableName)) {
-                        continue;
-                    }
+                        && !fullyQualifiedTableNames.isEmpty()
+                        && !fullyQualifiedTableNames.contains(tableName)) {
+                    continue;
                 }
 
                 if (!tc.areAnyStatementsEnabled()) {
@@ -523,10 +461,14 @@ public class Context extends PropertyHolder {
     }
 
     private Connection getConnection() throws SQLException {
-        Connection connection = ConnectionFactory.getInstance().getConnection(
-                jdbcConnectionConfiguration);
+        ConnectionFactory connectionFactory;
+        if (jdbcConnectionConfiguration != null) {
+            connectionFactory = new JDBCConnectionFactory(jdbcConnectionConfiguration);
+        } else {
+            connectionFactory = ObjectFactory.createConnectionFactory(this);
+        }
 
-        return connection;
+        return connectionFactory.getConnection();
     }
 
     private void closeConnection(Connection connection) {
@@ -535,7 +477,6 @@ public class Context extends PropertyHolder {
                 connection.close();
             } catch (SQLException e) {
                 // ignore
-                ;
             }
         }
     }
@@ -543,5 +484,21 @@ public class Context extends PropertyHolder {
     public boolean autoDelimitKeywords() {
         return autoDelimitKeywords != null
                 && autoDelimitKeywords.booleanValue();
+    }
+
+    public ConnectionFactoryConfiguration getConnectionFactoryConfiguration() {
+        return connectionFactoryConfiguration;
+    }
+
+    public void setConnectionFactoryConfiguration(ConnectionFactoryConfiguration connectionFactoryConfiguration) {
+        this.connectionFactoryConfiguration = connectionFactoryConfiguration;
+    }
+
+    public boolean isJava8Targeted() {
+        return isJava8Targeted;
+    }
+
+    public void setJava8Targeted(boolean isJava8Targeted) {
+        this.isJava8Targeted = isJava8Targeted;
     }
 }

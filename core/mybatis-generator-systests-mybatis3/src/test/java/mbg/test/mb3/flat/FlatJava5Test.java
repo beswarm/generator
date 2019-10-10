@@ -1,49 +1,46 @@
-/*
- *  Copyright 2009 The Apache Software Foundation
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package mbg.test.mb3.flat;
 
 import static mbg.test.common.util.TestUtilities.blobsAreEqual;
 import static mbg.test.common.util.TestUtilities.datesAreEqual;
 import static mbg.test.common.util.TestUtilities.generateRandomBlob;
 import static mbg.test.common.util.TestUtilities.timesAreEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.Test;
+
 import mbg.test.mb3.generated.flat.mapper.AwfulTableMapper;
 import mbg.test.mb3.generated.flat.mapper.FieldsblobsMapper;
-import mbg.test.mb3.generated.flat.mapper.FieldsonlyMapper;
 import mbg.test.mb3.generated.flat.mapper.PkblobsMapper;
 import mbg.test.mb3.generated.flat.mapper.PkfieldsMapper;
 import mbg.test.mb3.generated.flat.mapper.PkfieldsblobsMapper;
 import mbg.test.mb3.generated.flat.mapper.PkonlyMapper;
+import mbg.test.mb3.generated.flat.mapper.subpackage.FieldsonlyMapper;
 import mbg.test.mb3.generated.flat.model.AwfulTable;
 import mbg.test.mb3.generated.flat.model.AwfulTableExample;
 import mbg.test.mb3.generated.flat.model.Fieldsblobs;
 import mbg.test.mb3.generated.flat.model.FieldsblobsExample;
-import mbg.test.mb3.generated.flat.model.Fieldsonly;
-import mbg.test.mb3.generated.flat.model.FieldsonlyExample;
 import mbg.test.mb3.generated.flat.model.Pkblobs;
 import mbg.test.mb3.generated.flat.model.PkblobsExample;
 import mbg.test.mb3.generated.flat.model.Pkfields;
@@ -52,10 +49,8 @@ import mbg.test.mb3.generated.flat.model.Pkfieldsblobs;
 import mbg.test.mb3.generated.flat.model.PkfieldsblobsExample;
 import mbg.test.mb3.generated.flat.model.Pkonly;
 import mbg.test.mb3.generated.flat.model.PkonlyExample;
-
-import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
+import mbg.test.mb3.generated.flat.model.subpackage.Fieldsonly;
+import mbg.test.mb3.generated.flat.model.subpackage.FieldsonlyExample;
 
 /**
  * @author Jeff Butler
@@ -278,7 +273,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             FieldsonlyExample example = new FieldsonlyExample();
             example.createCriteria().andIntegerfieldGreaterThan(5);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(2, rows);
 
             example.clear();
@@ -459,7 +454,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             PkonlyExample example = new PkonlyExample();
             example.createCriteria().andIdGreaterThan(4);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(2, rows);
 
             example.clear();
@@ -943,7 +938,7 @@ public class FlatJava5Test extends AbstractFlatTest {
             record.setId2(3);
             mapper.insert(record);
 
-            List<Integer> ids = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<>();
             ids.add(1);
             ids.add(3);
 
@@ -1205,7 +1200,7 @@ public class FlatJava5Test extends AbstractFlatTest {
             record.setWierdField(66);
             mapper.insert(record);
 
-            List<Integer> values = new ArrayList<Integer>();
+            List<Integer> values = new ArrayList<>();
             values.add(11);
             values.add(22);
 
@@ -1243,7 +1238,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             PkfieldsExample example = new PkfieldsExample();
             example.createCriteria().andLastnameLike("J%");
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -1544,7 +1539,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             PkblobsExample example = new PkblobsExample();
             example.createCriteria().andIdLessThan(4);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -2103,7 +2098,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             PkfieldsblobsExample example = new PkfieldsblobsExample();
             example.createCriteria().andId1NotEqualTo(3);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -2873,7 +2868,7 @@ public class FlatJava5Test extends AbstractFlatTest {
             record.setThirdFirstName("bammbamm3");
             mapper.insert(record);
 
-            List<Integer> ids = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<>();
             ids.add(1);
             ids.add(11);
 
@@ -3144,7 +3139,7 @@ public class FlatJava5Test extends AbstractFlatTest {
 
             AwfulTableExample example = new AwfulTableExample();
             example.createCriteria().andEMailLike("fred@%");
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();

@@ -1,17 +1,17 @@
-/*
- *  Copyright 2012 The MyBatis Team
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.codegen.mybatis3;
 
@@ -27,6 +27,8 @@ import org.mybatis.generator.codegen.mybatis3.xmlmapper.SimpleXMLMapperGenerator
 import org.mybatis.generator.internal.ObjectFactory;
 
 /**
+ * Introspected table implementation for generating simple MyBatis3 artifacts (no "by example" methods,
+ * flat model, etc.)
  * 
  * @author Jeff Butler
  * 
@@ -63,16 +65,16 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
 
         AbstractJavaClientGenerator javaGenerator;
         if ("XMLMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
-            javaGenerator = new SimpleJavaClientGenerator();
+            javaGenerator = new SimpleJavaClientGenerator(getClientProject());
         } else if ("ANNOTATEDMAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
-            javaGenerator = new SimpleAnnotatedClientGenerator();
+            javaGenerator = new SimpleAnnotatedClientGenerator(getClientProject());
         } else if ("MAPPER".equalsIgnoreCase(type)) { //$NON-NLS-1$
-            javaGenerator = new SimpleJavaClientGenerator();
+            javaGenerator = new SimpleJavaClientGenerator(getClientProject());
         } else {
             javaGenerator = (AbstractJavaClientGenerator) ObjectFactory
                     .createInternalObject(type);
         }
-        
+
         return javaGenerator;
     }
 
@@ -80,9 +82,9 @@ public class IntrospectedTableMyBatis3SimpleImpl extends IntrospectedTableMyBati
     protected void calculateJavaModelGenerators(List<String> warnings,
             ProgressCallback progressCallback) {
 
-        AbstractJavaGenerator javaGenerator = new SimpleModelGenerator();
+        AbstractJavaGenerator javaGenerator = new SimpleModelGenerator(getModelProject());
         initializeAbstractGenerator(javaGenerator, warnings,
                 progressCallback);
-        javaModelGenerators.add(javaGenerator);
+        javaGenerators.add(javaGenerator);
     }
 }

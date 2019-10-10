@@ -1,28 +1,28 @@
-/*
- *  Copyright 2011 The MyBatis Team
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package mbg.test.mb3.mixed.hierarchical.immutable;
 
 import static mbg.test.common.util.TestUtilities.blobsAreEqual;
 import static mbg.test.common.util.TestUtilities.generateRandomBlob;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.Test;
 
 import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Mapper.FieldsblobsMapper;
 import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Mapper.FieldsonlyMapper;
@@ -45,9 +45,6 @@ import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Model.PkfieldsblobsEx
 import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Model.PkfieldsblobsWithBLOBs;
 import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Model.PkonlyExample;
 import mbg.test.mb3.generated.mixed.hierarchical.Immutable.Model.PkonlyKey;
-
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
 
 /**
  * 
@@ -84,8 +81,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             List<Fieldsonly> answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 11.22, 0.0);
-            assertEquals(record.getFloatfield(), 33.44, 0.0);
+            assertEquals(record.getDoublefield(), 11.22, 0.001);
+            assertEquals(record.getFloatfield(), 33.44, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 5);
 
             example.clear();
@@ -93,8 +90,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.0);
-            assertEquals(record.getFloatfield(), 66.77, 0.0);
+            assertEquals(record.getDoublefield(), 99d, 0.001);
+            assertEquals(record.getFloatfield(), 66.77, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 8);
 
             example.clear();
@@ -102,8 +99,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.0);
-            assertEquals(record.getFloatfield(), 100.111, 0.0);
+            assertEquals(record.getDoublefield(), 99d, 0.001);
+            assertEquals(record.getFloatfield(), 100.111, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 9);
         } finally {
             sqlSession.close();
@@ -170,14 +167,14 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             example.clear();
             example.createCriteria().andIdEqualTo(5).andSeqNumEqualTo(3);
 
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
 
             example.clear();
             example.createCriteria().andIdEqualTo(7).andSeqNumEqualTo(3);
 
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -207,8 +204,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             example.clear();
             example.createCriteria().andIdEqualTo(22).andSeqNumEqualTo(3);
 
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -247,8 +244,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
                     .andLastnameEqualTo("Jones").andId1EqualTo(3)
                     .andId2EqualTo(4);
 
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -289,8 +286,8 @@ public class UpdateByExampleTest extends AbstractMixedHierarchicalImmutableTest 
             example.createCriteria().andFirstnameEqualTo("Fred")
                     .andLastnameIsNull().andId1EqualTo(3).andId2EqualTo(4);
 
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }

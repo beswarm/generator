@@ -1,41 +1,40 @@
-/*
- *  Copyright 2010 The MyBatis Team
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package mbg.test.mb3.annotated.flat;
 
 import static mbg.test.common.util.TestUtilities.blobsAreEqual;
 import static mbg.test.common.util.TestUtilities.generateRandomBlob;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.Test;
+
 import mbg.test.mb3.generated.annotated.flat.mapper.AwfulTableMapper;
 import mbg.test.mb3.generated.annotated.flat.mapper.FieldsblobsMapper;
-import mbg.test.mb3.generated.annotated.flat.mapper.FieldsonlyMapper;
 import mbg.test.mb3.generated.annotated.flat.mapper.PkblobsMapper;
 import mbg.test.mb3.generated.annotated.flat.mapper.PkfieldsMapper;
 import mbg.test.mb3.generated.annotated.flat.mapper.PkfieldsblobsMapper;
 import mbg.test.mb3.generated.annotated.flat.mapper.PkonlyMapper;
+import mbg.test.mb3.generated.annotated.flat.mapper.subpackage.FieldsonlyMapper;
 import mbg.test.mb3.generated.annotated.flat.model.AwfulTable;
 import mbg.test.mb3.generated.annotated.flat.model.AwfulTableExample;
 import mbg.test.mb3.generated.annotated.flat.model.Fieldsblobs;
 import mbg.test.mb3.generated.annotated.flat.model.FieldsblobsExample;
-import mbg.test.mb3.generated.annotated.flat.model.Fieldsonly;
-import mbg.test.mb3.generated.annotated.flat.model.FieldsonlyExample;
 import mbg.test.mb3.generated.annotated.flat.model.Pkblobs;
 import mbg.test.mb3.generated.annotated.flat.model.PkblobsExample;
 import mbg.test.mb3.generated.annotated.flat.model.Pkfields;
@@ -44,9 +43,8 @@ import mbg.test.mb3.generated.annotated.flat.model.Pkfieldsblobs;
 import mbg.test.mb3.generated.annotated.flat.model.PkfieldsblobsExample;
 import mbg.test.mb3.generated.annotated.flat.model.Pkonly;
 import mbg.test.mb3.generated.annotated.flat.model.PkonlyExample;
-
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
+import mbg.test.mb3.generated.annotated.flat.model.subpackage.Fieldsonly;
+import mbg.test.mb3.generated.annotated.flat.model.subpackage.FieldsonlyExample;
 
 /**
  * 
@@ -92,8 +90,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
             List<Fieldsonly> answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 11.22, 0.0);
-            assertEquals(record.getFloatfield(), 33.44, 0.0);
+            assertEquals(record.getDoublefield(), 11.22, 0.001);
+            assertEquals(record.getFloatfield(), 33.44, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 5);
             
             example.clear();
@@ -101,8 +99,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
             answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.0);
-            assertEquals(record.getFloatfield(), 66.77, 0.0);
+            assertEquals(record.getDoublefield(), 99d, 0.001);
+            assertEquals(record.getFloatfield(), 66.77, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 8);
             
             example.clear();
@@ -110,8 +108,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
             answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.0);
-            assertEquals(record.getFloatfield(), 100.111, 0.0);
+            assertEquals(record.getDoublefield(), 99d, 0.001);
+            assertEquals(record.getFloatfield(), 100.111, 0.001);
             assertEquals(record.getIntegerfield().intValue(), 9);
         } finally {
             sqlSession.close();
@@ -196,16 +194,16 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
                 .andIdEqualTo(5)
                 .andSeqNumEqualTo(3);
             
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
             
             example.clear();
             example.createCriteria()
                 .andIdEqualTo(7)
                 .andSeqNumEqualTo(3);
             
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -246,8 +244,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
                 .andIdEqualTo(22)
                 .andSeqNumEqualTo(3);
             
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -288,8 +286,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
                 .andId1EqualTo(3)
                 .andId2EqualTo(4);
     
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }
@@ -335,8 +333,8 @@ public class UpdateByExampleTest extends AbstractAnnotatedFlatTest {
                 .andId1EqualTo(3)
                 .andId2EqualTo(4);
     
-            rows = mapper.countByExample(example);
-            assertEquals(1, rows);
+            long returnedRows = mapper.countByExample(example);
+            assertEquals(1, returnedRows);
         } finally {
             sqlSession.close();
         }

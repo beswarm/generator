@@ -1,17 +1,17 @@
-/*
- *  Copyright 2005 The Apache Software Foundation
+/**
+ *    Copyright 2006-2016 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.eclipse.ui.wizards;
 
@@ -41,20 +41,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.mybatis.generator.api.dom.DefaultXmlFormatter;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.XmlConstants;
 import org.mybatis.generator.eclipse.ui.Activator;
-
-/**
- * This is a sample new wizard. Its role is to create a new file resource in the
- * provided container. If the container resource (a folder or a project) is
- * selected in the workspace when the wizard is opened, it will accept it as the
- * target container. The wizard creates one file with the extension "mpe". If a
- * sample multi-page editor (also available as a template) is registered for the
- * same extension, it will be able to open it.
- */
 
 public class NewConfigFileWizard extends Wizard implements INewWizard {
     private NewConfigFileWizardPage1 page;
@@ -71,7 +63,7 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
     /**
      * Adding the page to the wizard.
      */
-
+    @Override
     public void addPages() {
         page = new NewConfigFileWizardPage1(selection);
         addPage(page);
@@ -81,10 +73,12 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
      * This method is called when 'Finish' button is pressed in the wizard. We
      * will create an operation and run it using wizard as execution context.
      */
+    @Override
     public boolean performFinish() {
         final String containerName = page.getLocation();
         final String fileName = page.getFileName();
         IRunnableWithProgress op = new IRunnableWithProgress() {
+            @Override
             public void run(IProgressMonitor monitor)
                     throws InvocationTargetException {
                 try {
@@ -114,7 +108,6 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
      * or just replace its contents, and open the editor on the newly created
      * file.
      */
-
     private void doFinish(String containerName, String fileName,
             IProgressMonitor monitor) throws CoreException {
         // create a sample file
@@ -140,6 +133,7 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
         monitor.worked(1);
         monitor.setTaskName("Opening file for editing...");
         getShell().getDisplay().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 IWorkbenchPage page = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
@@ -155,7 +149,6 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
     /**
      * We will initialize file contents with a sample text.
      */
-
     private InputStream openContentStream() {
 
         Document document = new Document(XmlConstants.MYBATIS_GENERATOR_CONFIG_PUBLIC_ID,
@@ -180,11 +173,6 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
         javaModelGenerator.addAttribute(new Attribute("targetProject", "???")); //$NON-NLS-1$ //$NON-NLS-2$
         context.addElement(javaModelGenerator);
 
-        XmlElement sqlMapGenerator = new XmlElement("sqlMapGenerator"); //$NON-NLS-1$
-        sqlMapGenerator.addAttribute(new Attribute("targetPackage", "???")); //$NON-NLS-1$ //$NON-NLS-2$
-        sqlMapGenerator.addAttribute(new Attribute("targetProject", "???")); //$NON-NLS-1$ //$NON-NLS-2$
-        context.addElement(sqlMapGenerator);
-
         XmlElement javaClientGenerator = new XmlElement("javaClientGenerator"); //$NON-NLS-1$
         javaClientGenerator.addAttribute(new Attribute("targetPackage", "???")); //$NON-NLS-1$ //$NON-NLS-2$
         javaClientGenerator.addAttribute(new Attribute("targetProject", "???")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -200,8 +188,7 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
         table.addElement(columnOverride);
         context.addElement(table);
 
-        return new ByteArrayInputStream(document.getFormattedContent()
-                .getBytes());
+        return new ByteArrayInputStream(new DefaultXmlFormatter().getFormattedContent(document).getBytes());
     }
 
     private void throwCoreException(String message) throws CoreException {
@@ -214,6 +201,7 @@ public class NewConfigFileWizard extends Wizard implements INewWizard {
      * We will accept the selection in the workbench to see if we can initialize
      * from it.
      */
+    @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         this.selection = selection;
     }

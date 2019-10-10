@@ -1,17 +1,17 @@
-/*
- *  Copyright 2009 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
@@ -22,11 +22,6 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 
-/**
- * 
- * @author Jeff Butler
- * 
- */
 public class ResultMapWithBLOBsElementGenerator extends
         AbstractXmlElementGenerator {
 
@@ -55,7 +50,7 @@ public class ResultMapWithBLOBsElementGenerator extends
 
         if (!introspectedTable.isConstructorBased()) {
             answer.addAttribute(new Attribute("extends", //$NON-NLS-1$
-                introspectedTable.getBaseResultMapId()));
+                    introspectedTable.getBaseResultMapId()));
         }
 
         context.getCommentGenerator().addComment(answer);
@@ -78,9 +73,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 .getBLOBColumns()) {
             XmlElement resultElement = new XmlElement("result"); //$NON-NLS-1$
 
-            resultElement
-                    .addAttribute(new Attribute(
-                            "column", MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(introspectedColumn))); //$NON-NLS-1$
+            resultElement.addAttribute(generateColumnAttribute(introspectedColumn));
             resultElement.addAttribute(new Attribute(
                     "property", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
             resultElement.addAttribute(new Attribute(
@@ -103,9 +96,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 .getPrimaryKeyColumns()) {
             XmlElement resultElement = new XmlElement("idArg"); //$NON-NLS-1$
 
-            resultElement
-                    .addAttribute(new Attribute(
-                            "column", MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(introspectedColumn))); //$NON-NLS-1$
+            resultElement.addAttribute(generateColumnAttribute(introspectedColumn));
             resultElement.addAttribute(new Attribute(
                     "jdbcType", introspectedColumn.getJdbcTypeName())); //$NON-NLS-1$
             resultElement.addAttribute(new Attribute("javaType", //$NON-NLS-1$
@@ -124,9 +115,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 .getNonPrimaryKeyColumns()) {
             XmlElement resultElement = new XmlElement("arg"); //$NON-NLS-1$
 
-            resultElement
-                    .addAttribute(new Attribute(
-                            "column", MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(introspectedColumn))); //$NON-NLS-1$
+            resultElement.addAttribute(generateColumnAttribute(introspectedColumn));
             resultElement.addAttribute(new Attribute(
                     "jdbcType", introspectedColumn.getJdbcTypeName())); //$NON-NLS-1$
 
@@ -137,7 +126,7 @@ public class ResultMapWithBLOBsElementGenerator extends
                 sb.append(introspectedColumn.getFullyQualifiedJavaType().getShortName());
                 resultElement.addAttribute(new Attribute("javaType", //$NON-NLS-1$
                         sb.toString()));
-                
+
             } else if ("byte[]".equals(introspectedColumn.getFullyQualifiedJavaType() //$NON-NLS-1$
                     .getFullyQualifiedName())) {
                 // need to use the MyBatis type alias for a primitive byte arry
@@ -158,5 +147,10 @@ public class ResultMapWithBLOBsElementGenerator extends
         }
 
         answer.addElement(constructor);
+    }
+
+    private Attribute generateColumnAttribute(IntrospectedColumn introspectedColumn) {
+        return new Attribute("column", //$NON-NLS-1$
+                MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(introspectedColumn));
     }
 }

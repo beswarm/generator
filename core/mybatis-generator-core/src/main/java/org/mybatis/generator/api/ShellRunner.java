@@ -1,17 +1,17 @@
-/*
- *  Copyright 2006 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.api;
 
@@ -70,7 +70,7 @@ public class ShellRunner {
             return;
         }
 
-        List<String> warnings = new ArrayList<String>();
+        List<String> warnings = new ArrayList<>();
 
         String configfile = arguments.get(CONFIG_FILE);
         File configurationFile = new File(configfile);
@@ -79,7 +79,7 @@ public class ShellRunner {
             return;
         }
 
-        Set<String> fullyqualifiedTables = new HashSet<String>();
+        Set<String> fullyqualifiedTables = new HashSet<>();
         if (arguments.containsKey(TABLES)) {
             StringTokenizer st = new StringTokenizer(arguments.get(TABLES), ","); //$NON-NLS-1$
             while (st.hasMoreTokens()) {
@@ -90,7 +90,7 @@ public class ShellRunner {
             }
         }
 
-        Set<String> contexts = new HashSet<String>();
+        Set<String> contexts = new HashSet<>();
         if (arguments.containsKey(CONTEXT_IDS)) {
             StringTokenizer st = new StringTokenizer(
                     arguments.get(CONTEXT_IDS), ","); //$NON-NLS-1$
@@ -124,11 +124,8 @@ public class ShellRunner {
             }
 
             return;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace(System.out);
             return;
         } catch (InvalidConfigurationException e) {
             writeLine(getString("Progress.16")); //$NON-NLS-1$
@@ -137,15 +134,14 @@ public class ShellRunner {
             }
             return;
         } catch (InterruptedException e) {
-            // ignore (will never happen with the DefaultShellCallback)
-            ;
+            Thread.currentThread().interrupt();
         }
 
         for (String warning : warnings) {
             writeLine(warning);
         }
 
-        if (warnings.size() == 0) {
+        if (warnings.isEmpty()) {
             writeLine(getString("Progress.4")); //$NON-NLS-1$
         } else {
             writeLine();
@@ -154,12 +150,7 @@ public class ShellRunner {
     }
 
     private static void usage() {
-        String lines = getString("Usage.Lines"); //$NON-NLS-1$
-        int iLines = Integer.parseInt(lines);
-        for (int i = 0; i < iLines; i++) {
-            String key = "Usage." + i; //$NON-NLS-1$
-            writeLine(getString(key));
-        }
+        writeLine(getString("Usage"));
     }
 
     private static void writeLine(String message) {
@@ -171,8 +162,8 @@ public class ShellRunner {
     }
 
     private static Map<String, String> parseCommandLine(String[] args) {
-        List<String> errors = new ArrayList<String>();
-        Map<String, String> arguments = new HashMap<String, String>();
+        List<String> errors = new ArrayList<>();
+        Map<String, String> arguments = new HashMap<>();
 
         for (int i = 0; i < args.length; i++) {
             if (CONFIG_FILE.equalsIgnoreCase(args[i])) {

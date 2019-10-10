@@ -1,17 +1,17 @@
-/*
- *  Copyright 2008 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.api;
 
@@ -31,8 +31,8 @@ import org.mybatis.generator.config.Context;
  * the code generation process. These methods can be used to extend or modify
  * the generated code. Clients may implement this interface in its entirety, or
  * extend the PluginAdapter (highly recommended).
- * <p>
- * Plugins have a lifecycle. In general, the lifecycle is this:
+ * 
+ * <p>Plugins have a lifecycle. In general, the lifecycle is this:
  * 
  * <ol>
  * <li>The setXXX methods are called one time</li>
@@ -50,14 +50,14 @@ import org.mybatis.generator.config.Context;
  * <li>The contextGenerateAdditionalXmlFiles() method is called one time</li>
  * </ol>
  * 
- * Plugins are related to contexts - so each context will have its own set of
+ * <p>Plugins are related to contexts - so each context will have its own set of
  * plugins. If the same plugin is specified in multiple contexts, then each
  * context will hold a unique instance of the plugin.
- * <p>
- * Plugins are called, and initialized, in the same order they are specified in
+ * 
+ * <p>Plugins are called, and initialized, in the same order they are specified in
  * the configuration.
- * <p>
- * The clientXXX, modelXXX, and sqlMapXXX methods are called by the code
+ * 
+ * <p>The clientXXX, modelXXX, and sqlMapXXX methods are called by the code
  * generators. If you replace the default code generators with other
  * implementations, these methods may not be called.
  * 
@@ -66,42 +66,45 @@ import org.mybatis.generator.config.Context;
  * 
  */
 public interface Plugin {
-    public enum ModelClassType {
-        PRIMARY_KEY, BASE_RECORD, RECORD_WITH_BLOBS
+    
+    enum ModelClassType {
+        PRIMARY_KEY, 
+        BASE_RECORD, 
+        RECORD_WITH_BLOBS
     }
 
     /**
-     * Set the context under which this plugin is running
-     * 
+     * Set the context under which this plugin is running.
+     *
      * @param context
+     *            the new context
      */
     void setContext(Context context);
 
     /**
-     * Set properties from the plugin configuration
-     * 
+     * Set properties from the plugin configuration.
+     *
      * @param properties
+     *            the new properties
      */
     void setProperties(Properties properties);
 
     /**
-     * This method is called just before the getGeneratedXXXFiles methods are
-     * called on the introspected table. Plugins can implement this method to
-     * override any of the default attributes, or change the results of database
-     * introspection, before any code generation activities occur. Attributes
-     * are listed as static Strings with the prefix ATTR_ in IntrospectedTable.
-     * <p>
-     * A good example of overriding an attribute would be the case where a user
-     * wanted to change the name of one of the generated classes, change the
-     * target package, or change the name of the generated SQL map file.
-     * <p>
-     * <b>Warning:</b> Anything that is listed as an attribute should not be
-     * changed by one of the other plugin methods. For example, if you want to
-     * change the name of a generated example class, you should not simply
-     * change the Type in the <code>modelExampleClassGenerated()</code> method.
-     * If you do, the change will not be reflected in other generated artifacts.
+     * This method is called just before the getGeneratedXXXFiles methods are called on the introspected table. Plugins
+     * can implement this method to override any of the default attributes, or change the results of database
+     * introspection, before any code generation activities occur. Attributes are listed as static Strings with the
+     * prefix ATTR_ in IntrospectedTable.
      * 
+     * <p>A good example of overriding an attribute would be the case where a user wanted to change the name of one
+     * of the generated classes, change the target package, or change the name of the generated SQL map file.
+     * 
+     * <p><b>Warning:</b> Anything that is listed as an attribute should not be changed by one of the other plugin
+     * methods. For example, if you want to change the name of a generated example class, you should not simply change
+     * the Type in the <code>modelExampleClassGenerated()</code> method. If you do, the change will not be reflected
+     * in other generated artifacts.
+     *
      * @param introspectedTable
+     *            the introspected table
      */
     void initialized(IntrospectedTable introspectedTable);
 
@@ -176,8 +179,6 @@ public interface Plugin {
      * 
      * @param interfaze
      *            the generated interface if any, may be null
-     * @param topLevelClass
-     *            the generated implementation class if any, may be null
      * @param introspectedTable
      *            The class containing information about the table as
      *            introspected from the database
@@ -186,303 +187,149 @@ public interface Plugin {
      *         first plugin returning false will disable the calling of further
      *         plugins.
      */
-    boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
+    boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the count method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 
+     * @param method
+     *     the generated count method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *     The class containing information about the table as introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientBasicCountMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the delete method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 
+     * @param method
+     *     the generated delete method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *     The class containing information about the table as introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the insert method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 
+     * @param method
+     *     the generated insert method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *     The class containing information about the table as introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientBasicInsertMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the insert multiple method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 
+     * @param method
+     *     the generated insert method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *     The class containing information about the table as introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientBasicInsertMultipleMethodGenerated(Method method, Interface interfaze,
             IntrospectedTable introspectedTable);
 
     /**
-     * This method is called when the countByExample method has been generated
-     * in the client implementation class.
+     * This method is called when the insert multiple method helper has been generated for the mapper interface.
+     * The helper method is only created when a multiple row insert has a generated key.
+     * This method is only called in the MyBatis3DynamicSql runtime.
      * 
      * @param method
-     *            the generated countByExample method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
+     *     the generated insert method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
      * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
+     *     The class containing information about the table as introspected from the database
      * @return true if the method should be generated, false if the generated
      *         method should be ignored. In the case of multiple plugins, the
      *         first plugin returning false will disable the calling of further
      *         plugins.
      */
-    boolean clientCountByExampleMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
+    boolean clientBasicInsertMultipleHelperMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable);
 
     /**
-     * This method is called when the deleteByExample method has been generated
-     * in the client implementation class.
+     * This method is called when the selectMany method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
      * 
      * @param method
-     *            the generated deleteByExample method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
+     *     the generated selectMany method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
      * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
+     *     The class containing information about the table as introspected from the database
      * @return true if the method should be generated, false if the generated
      *         method should be ignored. In the case of multiple plugins, the
      *         first plugin returning false will disable the calling of further
      *         plugins.
      */
-    boolean clientDeleteByExampleMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
+    boolean clientBasicSelectManyMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable);
 
     /**
-     * This method is called when the deleteByPrimaryKey method has been
-     * generated in the client implementation class.
+     * This method is called when the selectOne method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
      * 
      * @param method
-     *            the generated deleteByPrimaryKey method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
+     *     the generated selectOne method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
      * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
+     *     The class containing information about the table as introspected from the database
      * @return true if the method should be generated, false if the generated
      *         method should be ignored. In the case of multiple plugins, the
      *         first plugin returning false will disable the calling of further
      *         plugins.
      */
-    boolean clientDeleteByPrimaryKeyMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
+    boolean clientBasicSelectOneMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable);
 
     /**
-     * This method is called when the insert method has been generated in the
-     * client implementation class.
+     * This method is called when the update method has been generated for the mapper interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
      * 
      * @param method
-     *            the generated insert method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
+     *     the generated update method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
      * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
+     *     The class containing information about the table as introspected from the database
      * @return true if the method should be generated, false if the generated
      *         method should be ignored. In the case of multiple plugins, the
      *         first plugin returning false will disable the calling of further
      *         plugins.
      */
-    boolean clientInsertMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the insert selective method has been generated
-     * in the client implementation class.
-     * 
-     * @param method
-     *            the generated insert method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientInsertSelectiveMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the selectByExampleWithBLOBs method has been
-     * generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated selectByExampleWithBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientSelectByExampleWithBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the selectByExampleWithoutBLOBs method has
-     * been generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated selectByExampleWithoutBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientSelectByExampleWithoutBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the selectByPrimaryKey method has been
-     * generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated selectByPrimaryKey method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientSelectByPrimaryKeyMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByExampleSelective method has been
-     * generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByExampleSelective method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByExampleSelectiveMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByExampleWithBLOBs method has been
-     * generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByExampleWithBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByExampleWithBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByExampleWithoutBLOBs method has
-     * been generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByExampleWithoutBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByExampleWithoutBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByPrimaryKeySelective method has
-     * been generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByPrimaryKeySelective method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByPrimaryKeyWithBLOBs method has
-     * been generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByPrimaryKeyWithBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the updateByPrimaryKeyWithoutBLOBs method has
-     * been generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated updateByPrimaryKeyWithBLOBs method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-
+    boolean clientBasicUpdateMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+    
     /**
      * This method is called when the countByExample method has been generated
      * in the client interface.
@@ -547,6 +394,82 @@ public interface Plugin {
             Interface interfaze, IntrospectedTable introspectedTable);
 
     /**
+     * Called when the general count method has been generated. This is the replacement for countByExample
+     * in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated general count method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientGeneralCountMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the general delete method has been generated. This is the replacement for deleteByExample
+     * in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated general delete method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientGeneralDeleteMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the general select distinct method has been generated. This is the replacement for
+     * selectDistinctByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated general select distinct method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientGeneralSelectDistinctMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the general select method has been generated. This is the replacement for
+     * selectByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated general select method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientGeneralSelectMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the general update method has been generated. This is the replacement for
+     * updateByExample in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated general update method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientGeneralUpdateMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
      * This method is called when the insert method has been generated in the
      * client interface.
      * 
@@ -565,6 +488,28 @@ public interface Plugin {
      *         plugins.
      */
     boolean clientInsertMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the insert multiple method has been generated in the
+     * client interface.
+     * This method is only called in the MyBatis3DynamicSql runtime.
+     * 
+     * @param method
+     *            the generated insert multiple method
+     * @param interfaze
+     *            the partially implemented client interface. You can add
+     *            additional imported classes to the interface if
+     *            necessary.
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientInsertMultipleMethodGenerated(Method method, Interface interfaze,
             IntrospectedTable introspectedTable);
 
     /**
@@ -588,49 +533,6 @@ public interface Plugin {
     boolean clientInsertSelectiveMethodGenerated(Method method,
             Interface interfaze, IntrospectedTable introspectedTable);
 
-    /**
-     * This method is called when the selectAll method has been
-     * generated in the client interface.  This method is only generated by
-     * the simple runtime.
-     * 
-     * @param method
-     *            the generated selectAll method
-     * @param interfaze
-     *            the partially implemented client interface. You can add
-     *            additional imported classes to the interface if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientSelectAllMethodGenerated(Method method,
-            Interface interfaze, IntrospectedTable introspectedTable);
-
-    /**
-     * This method is called when the selectAll method has been
-     * generated in the client implementation class.
-     * 
-     * @param method
-     *            the generated selectAll method
-     * @param topLevelClass
-     *            the partially implemented client implementation class. You can
-     *            add additional imported classes to the implementation class if
-     *            necessary.
-     * @param introspectedTable
-     *            The class containing information about the table as
-     *            introspected from the database
-     * @return true if the method should be generated, false if the generated
-     *         method should be ignored. In the case of multiple plugins, the
-     *         first plugin returning false will disable the calling of further
-     *         plugins.
-     */
-    boolean clientSelectAllMethodGenerated(Method method,
-            TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
-    
     /**
      * This method is called when the selectByExampleWithBLOBs method has been
      * generated in the client interface.
@@ -695,6 +597,33 @@ public interface Plugin {
             Interface interfaze, IntrospectedTable introspectedTable);
 
     /**
+     * Called when the selectList field is generated in a MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param field the generated selectList field
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the field should be generated
+     */
+    boolean clientSelectListFieldGenerated(Field field, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the selectOne method is generated. This is a new method in the MyBatis Dynamic SQL V2 runtime.
+     * 
+     * @param method
+     *     the generated selectOne method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientSelectOneMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
      * This method is called when the updateByExampleSelective method has been
      * generated in the client interface.
      * 
@@ -714,6 +643,36 @@ public interface Plugin {
      */
     boolean clientUpdateByExampleSelectiveMethodGenerated(Method method,
             Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the updateAllColumns method is generated. The generated method can be used with the general
+     * update method to mimic the function of the old updateByExample method.
+     * 
+     * @param method
+     *     the generated updateAllColumns method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientUpdateAllColumnsMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
+     * Called when the updateSelectiveColumns method is generated. The generated method can be used with the general
+     * update method to mimic the function of the old updateByExampleSelective method.
+     * 
+     * @param method
+     *     the generated updateSelectiveColumns method
+     * @param interfaze
+     *     the partially generated mapper interfaces 
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated
+     */
+    boolean clientUpdateSelectiveColumnsMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable);
 
     /**
      * This method is called when the updateByExampleWithBLOBs method has been
@@ -821,6 +780,28 @@ public interface Plugin {
             Interface interfaze, IntrospectedTable introspectedTable);
 
     /**
+     * This method is called when the selectAll method has been
+     * generated in the client interface.  This method is only generated by
+     * the simple runtime.
+     * 
+     * @param method
+     *            the generated selectAll method
+     * @param interfaze
+     *            the partially implemented client interface. You can add
+     *            additional imported classes to the interface if
+     *            necessary.
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the method should be generated, false if the generated
+     *         method should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean clientSelectAllMethodGenerated(Method method,
+            Interface interfaze, IntrospectedTable introspectedTable);
+
+    /**
      * This method is called after the field is generated for a specific column
      * in a table.
      * 
@@ -904,7 +885,7 @@ public interface Plugin {
      * This method is called after the primary key class is generated by the
      * JavaModelGenerator. This method will only be called if
      * the table rules call for generation of a primary key class.
-     * <p/>
+     * <br><br>
      * This method is only guaranteed to be called by the Java
      * model generators. Other user supplied generators may, or may not, call
      * this method.
@@ -926,7 +907,7 @@ public interface Plugin {
      * This method is called after the base record class is generated by the
      * JavaModelGenerator. This method will only be called if
      * the table rules call for generation of a base record class.
-     * <p/>
+     * <br><br>
      * This method is only guaranteed to be called by the default Java
      * model generators. Other user supplied generators may, or may not, call
      * this method.
@@ -948,7 +929,7 @@ public interface Plugin {
      * This method is called after the record with BLOBs class is generated by
      * the JavaModelGenerator. This method will only be called
      * if the table rules call for generation of a record with BLOBs class.
-     * <p/>
+     * <br><br>
      * This method is only guaranteed to be called by the default Java
      * model generators. Other user supplied generators may, or may not, call
      * this method.
@@ -970,7 +951,7 @@ public interface Plugin {
      * This method is called after the example class is generated by the 
      * JavaModelGenerator. This method will only be called if the table
      * rules call for generation of an example class.
-     * <p/>
+     * <br><br>
      * This method is only guaranteed to be called by the default Java
      * model generators. Other user supplied generators may, or may not, call
      * this method.
@@ -1020,7 +1001,7 @@ public interface Plugin {
      *         document should be ignored. In the case of multiple plugins, the
      *         first plugin returning false will disable the calling of further
      *         plugins. Also, if any plugin returns false, then the
-     *         <tt>sqlMapGenerated</tt> method will not be called.
+     *         <code>sqlMapGenerated</code> method will not be called.
      */
     boolean sqlMapDocumentGenerated(Document document,
             IntrospectedTable introspectedTable);
@@ -1580,4 +1561,22 @@ public interface Plugin {
      */
     boolean providerUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
             TopLevelClass topLevelClass, IntrospectedTable introspectedTable);
+
+    /**
+     * This method is called when the MyBatis Dynamic SQL support class has
+     * been generated in the MyBatis Dynamic SQL runtime.
+     * 
+     * @param supportClass
+     *            the generated MyBatis Dynamic SQL support class
+     *            You can add additional items to the generated class
+     *            if necessary.
+     * @param introspectedTable
+     *            The class containing information about the table as
+     *            introspected from the database
+     * @return true if the class should be generated, false if the generated
+     *         class should be ignored. In the case of multiple plugins, the
+     *         first plugin returning false will disable the calling of further
+     *         plugins.
+     */
+    boolean dynamicSqlSupportGenerated(TopLevelClass supportClass, IntrospectedTable introspectedTable);
 }

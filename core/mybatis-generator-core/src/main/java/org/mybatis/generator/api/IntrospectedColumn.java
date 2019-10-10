@@ -1,17 +1,17 @@
-/*
- * Copyright 2005 The Apache Software Foundation
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+/**
+ *    Copyright 2006-2019 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.api;
 
@@ -23,8 +23,7 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.util.StringUtility;
 
 /**
- * This class holds information about an introspected column. The class has
- * utility methods useful for generating iBATIS objects.
+ * This class holds information about an introspected column.
  * 
  * @author Jeff Butler
  */
@@ -32,6 +31,11 @@ public class IntrospectedColumn {
     protected String actualColumnName;
 
     protected int jdbcType;
+
+    /**
+     * The platform specific data type name as reported from DatabaseMetadata.getColumns()
+     */
+    protected String actualTypeName;
 
     protected String jdbcTypeName;
 
@@ -42,7 +46,7 @@ public class IntrospectedColumn {
     protected int scale;
 
     protected boolean identity;
-    
+
     protected boolean isSequenceColumn;
 
     protected String javaProperty;
@@ -65,6 +69,21 @@ public class IntrospectedColumn {
     protected String remarks;
 
     protected String defaultValue;
+
+    /**
+     * true if the JDBC driver reports that this column is auto-increment.
+     */
+    protected boolean isAutoIncrement;
+
+    /**
+     * true if the JDBC driver reports that this column is generated.
+     */
+    protected boolean isGeneratedColumn;
+
+    /**
+     * True if there is a column override that defines this column as GENERATED ALWAYS.
+     */
+    protected boolean isGeneratedAlways;
 
     /**
      * Constructs a Column definition. This object holds all the information
@@ -137,17 +156,10 @@ public class IntrospectedColumn {
                 .stringContainsSpace(actualColumnName);
     }
 
-    /**
-     * @return Returns the identity.
-     */
     public boolean isIdentity() {
         return identity;
     }
 
-    /**
-     * @param identity
-     *            The identity to set.
-     */
     public void setIdentity(boolean identity) {
         this.identity = identity;
     }
@@ -300,5 +312,44 @@ public class IntrospectedColumn {
 
     public void setSequenceColumn(boolean isSequenceColumn) {
         this.isSequenceColumn = isSequenceColumn;
+    }
+
+    public boolean isAutoIncrement() {
+        return isAutoIncrement;
+    }
+
+    public void setAutoIncrement(boolean isAutoIncrement) {
+        this.isAutoIncrement = isAutoIncrement;
+    }
+
+    public boolean isGeneratedColumn() {
+        return isGeneratedColumn;
+    }
+
+    public void setGeneratedColumn(boolean isGeneratedColumn) {
+        this.isGeneratedColumn = isGeneratedColumn;
+    }
+
+    public boolean isGeneratedAlways() {
+        return isGeneratedAlways;
+    }
+
+    public void setGeneratedAlways(boolean isGeneratedAlways) {
+        this.isGeneratedAlways = isGeneratedAlways;
+    }
+
+    /**
+     * The platform specific type name as reported by the JDBC driver. This value is determined
+     * from the DatabaseMetadata.getColumns() call - specifically ResultSet.getString("TYPE_NAME").
+     * This value is platform dependent.
+     * 
+     * @return the platform specific type name as reported by the JDBC driver
+     */
+    public String getActualTypeName() {
+        return actualTypeName;
+    }
+
+    public void setActualTypeName(String actualTypeName) {
+        this.actualTypeName = actualTypeName;
     }
 }

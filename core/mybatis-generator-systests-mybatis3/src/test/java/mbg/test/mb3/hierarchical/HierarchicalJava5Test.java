@@ -1,34 +1,33 @@
-/*
- *  Copyright 2009 The Apache Software Foundation
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package mbg.test.mb3.hierarchical;
 
 import static mbg.test.common.util.TestUtilities.blobsAreEqual;
 import static mbg.test.common.util.TestUtilities.datesAreEqual;
 import static mbg.test.common.util.TestUtilities.generateRandomBlob;
 import static mbg.test.common.util.TestUtilities.timesAreEqual;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.Test;
 
 import mbg.test.mb3.generated.hierarchical.mapper.AwfulTableMapper;
 import mbg.test.mb3.generated.hierarchical.mapper.FieldsblobsMapper;
@@ -36,7 +35,7 @@ import mbg.test.mb3.generated.hierarchical.mapper.PkblobsMapper;
 import mbg.test.mb3.generated.hierarchical.mapper.PkfieldsMapper;
 import mbg.test.mb3.generated.hierarchical.mapper.PkfieldsblobsMapper;
 import mbg.test.mb3.generated.hierarchical.mapper.PkonlyMapper;
-import mbg.test.mb3.generated.hierarchical.mapper.subpackage.FieldsonlyMapper;
+import mbg.test.mb3.generated.hierarchical.mapper.different.subpackage.FieldsOnlyMapper;
 import mbg.test.mb3.generated.hierarchical.model.AwfulTable;
 import mbg.test.mb3.generated.hierarchical.model.AwfulTableExample;
 import mbg.test.mb3.generated.hierarchical.model.AwfulTableKey;
@@ -55,11 +54,8 @@ import mbg.test.mb3.generated.hierarchical.model.PkfieldsblobsKey;
 import mbg.test.mb3.generated.hierarchical.model.PkfieldsblobsWithBLOBs;
 import mbg.test.mb3.generated.hierarchical.model.PkonlyExample;
 import mbg.test.mb3.generated.hierarchical.model.PkonlyKey;
-import mbg.test.mb3.generated.hierarchical.model.subpackage.Fieldsonly;
-import mbg.test.mb3.generated.hierarchical.model.subpackage.FieldsonlyExample;
-
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
+import mbg.test.mb3.generated.hierarchical.model.subpackage.FieldsOnlyEntity;
+import mbg.test.mb3.generated.hierarchical.model.subpackage.FieldsOnlyEntityExample;
 
 /**
  * @author Jeff Butler
@@ -72,20 +68,20 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         try {
-            FieldsonlyMapper mapper = sqlSession.getMapper(FieldsonlyMapper.class);
-            Fieldsonly record = new Fieldsonly();
+            FieldsOnlyMapper mapper = sqlSession.getMapper(FieldsOnlyMapper.class);
+            FieldsOnlyEntity record = new FieldsOnlyEntity();
             record.setDoublefield(11.22);
             record.setFloatfield(33.44);
             record.setIntegerfield(5);
             mapper.insert(record);
 
-            FieldsonlyExample example = new FieldsonlyExample();
+            FieldsOnlyEntityExample example = new FieldsOnlyEntityExample();
             example.createCriteria().andIntegerfieldEqualTo(5);
 
-            List<Fieldsonly> answer = mapper.selectByExample(example);
+            List<FieldsOnlyEntity> answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
 
-            Fieldsonly returnedRecord = answer.get(0);
+            FieldsOnlyEntity returnedRecord = answer.get(0);
             assertEquals(record.getIntegerfield(), returnedRecord
                     .getIntegerfield());
             assertEquals(record.getDoublefield(), returnedRecord
@@ -101,32 +97,32 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         try {
-            FieldsonlyMapper mapper = sqlSession.getMapper(FieldsonlyMapper.class);
-            Fieldsonly record = new Fieldsonly();
+            FieldsOnlyMapper mapper = sqlSession.getMapper(FieldsOnlyMapper.class);
+            FieldsOnlyEntity record = new FieldsOnlyEntity();
             record.setDoublefield(11.22);
             record.setFloatfield(33.44);
             record.setIntegerfield(5);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(44.55);
             record.setFloatfield(66.77);
             record.setIntegerfield(8);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(88.99);
             record.setFloatfield(100.111);
             record.setIntegerfield(9);
             mapper.insert(record);
 
-            FieldsonlyExample example = new FieldsonlyExample();
+            FieldsOnlyEntityExample example = new FieldsOnlyEntityExample();
             example.createCriteria().andIntegerfieldGreaterThan(5);
 
-            List<Fieldsonly> answer = mapper.selectByExample(example);
+            List<FieldsOnlyEntity> answer = mapper.selectByExample(example);
             assertEquals(2, answer.size());
 
-            example = new FieldsonlyExample();
+            example = new FieldsOnlyEntityExample();
             answer = mapper.selectByExample(example);
             assertEquals(3, answer.size());
         } finally {
@@ -139,29 +135,29 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         try {
-            FieldsonlyMapper mapper = sqlSession.getMapper(FieldsonlyMapper.class);
-            Fieldsonly record = new Fieldsonly();
+            FieldsOnlyMapper mapper = sqlSession.getMapper(FieldsOnlyMapper.class);
+            FieldsOnlyEntity record = new FieldsOnlyEntity();
             record.setDoublefield(11.22);
             record.setFloatfield(33.44);
             record.setIntegerfield(5);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(44.55);
             record.setFloatfield(66.77);
             record.setIntegerfield(8);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(88.99);
             record.setFloatfield(100.111);
             record.setIntegerfield(9);
             mapper.insert(record);
 
-            FieldsonlyExample example = new FieldsonlyExample();
+            FieldsOnlyEntityExample example = new FieldsOnlyEntityExample();
             example.createCriteria();
 
-            List<Fieldsonly> answer = mapper.selectByExample(example);
+            List<FieldsOnlyEntity> answer = mapper.selectByExample(example);
             assertEquals(3, answer.size());
         } finally {
             sqlSession.close();
@@ -173,33 +169,33 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         try {
-            FieldsonlyMapper mapper = sqlSession.getMapper(FieldsonlyMapper.class);
-            Fieldsonly record = new Fieldsonly();
+            FieldsOnlyMapper mapper = sqlSession.getMapper(FieldsOnlyMapper.class);
+            FieldsOnlyEntity record = new FieldsOnlyEntity();
             record.setDoublefield(11.22);
             record.setFloatfield(33.44);
             record.setIntegerfield(5);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(44.55);
             record.setFloatfield(66.77);
             record.setIntegerfield(8);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(88.99);
             record.setFloatfield(100.111);
             record.setIntegerfield(9);
             mapper.insert(record);
 
-            FieldsonlyExample example = new FieldsonlyExample();
+            FieldsOnlyEntityExample example = new FieldsOnlyEntityExample();
             example.createCriteria().andIntegerfieldGreaterThan(5);
 
             int rows = mapper.deleteByExample(example);
             assertEquals(2, rows);
 
-            example = new FieldsonlyExample();
-            List<Fieldsonly> answer = mapper.selectByExample(example);
+            example = new FieldsOnlyEntityExample();
+            List<FieldsOnlyEntity> answer = mapper.selectByExample(example);
             assertEquals(1, answer.size());
         } finally {
             sqlSession.close();
@@ -211,28 +207,28 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         try {
-            FieldsonlyMapper mapper = sqlSession.getMapper(FieldsonlyMapper.class);
-            Fieldsonly record = new Fieldsonly();
+            FieldsOnlyMapper mapper = sqlSession.getMapper(FieldsOnlyMapper.class);
+            FieldsOnlyEntity record = new FieldsOnlyEntity();
             record.setDoublefield(11.22);
             record.setFloatfield(33.44);
             record.setIntegerfield(5);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(44.55);
             record.setFloatfield(66.77);
             record.setIntegerfield(8);
             mapper.insert(record);
 
-            record = new Fieldsonly();
+            record = new FieldsOnlyEntity();
             record.setDoublefield(88.99);
             record.setFloatfield(100.111);
             record.setIntegerfield(9);
             mapper.insert(record);
 
-            FieldsonlyExample example = new FieldsonlyExample();
+            FieldsOnlyEntityExample example = new FieldsOnlyEntityExample();
             example.createCriteria().andIntegerfieldGreaterThan(5);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(2, rows);
 
             example.clear();
@@ -416,7 +412,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             PkonlyExample example = new PkonlyExample();
             example.createCriteria().andIdGreaterThan(4);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(2, rows);
 
             example.clear();
@@ -917,7 +913,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
             record.setId2(3);
             mapper.insert(record);
 
-            List<Integer> ids = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<>();
             ids.add(1);
             ids.add(3);
 
@@ -1116,7 +1112,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
             record.setWierdField(66);
             mapper.insert(record);
 
-            List<Integer> values = new ArrayList<Integer>();
+            List<Integer> values = new ArrayList<>();
             values.add(11);
             values.add(22);
 
@@ -1155,7 +1151,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             PkfieldsExample example = new PkfieldsExample();
             example.createCriteria().andLastnameLike("J%");
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -1467,7 +1463,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             PkblobsExample example = new PkblobsExample();
             example.createCriteria().andIdLessThan(4);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -1878,7 +1874,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             PkfieldsblobsExample example = new PkfieldsblobsExample();
             example.createCriteria().andId1NotEqualTo(3);
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -2077,7 +2073,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             FieldsblobsExample example = new FieldsblobsExample();
             example.createCriteria().andFirstnameLike("S%");
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();
@@ -2862,7 +2858,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
             record.setThirdFirstName("bammbamm3");
             mapper.insert(record);
 
-            List<Integer> ids = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<>();
             ids.add(1);
             ids.add(11);
 
@@ -3133,7 +3129,7 @@ public class HierarchicalJava5Test extends AbstractHierarchicalTest {
 
             AwfulTableExample example = new AwfulTableExample();
             example.createCriteria().andEMailLike("fred@%");
-            int rows = mapper.countByExample(example);
+            long rows = mapper.countByExample(example);
             assertEquals(1, rows);
 
             example.clear();

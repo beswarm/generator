@@ -1,17 +1,17 @@
-/*
- *  Copyright 2005 The Apache Software Foundation
+/**
+ *    Copyright 2006-2018 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.config;
 
@@ -21,12 +21,6 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.util.List;
 
-import org.mybatis.generator.api.dom.xml.Attribute;
-import org.mybatis.generator.api.dom.xml.XmlElement;
-
-/**
- * @author Jeff Butler
- */
 public class ColumnOverride extends PropertyHolder {
 
     private String columnName;
@@ -41,11 +35,12 @@ public class ColumnOverride extends PropertyHolder {
 
     private boolean isColumnNameDelimited;
 
-    private String configuredDelimitedColumnName;
-
     /**
-	 *  
-	 */
+     * If true, the column is a GENERATED ALWAYS column which means
+     * that it should not be used in insert or update statements.
+     */
+    private boolean isGeneratedAlways;
+
     public ColumnOverride(String columnName) {
         super();
 
@@ -89,44 +84,12 @@ public class ColumnOverride extends PropertyHolder {
         this.typeHandler = typeHandler;
     }
 
-    public XmlElement toXmlElement() {
-        XmlElement xmlElement = new XmlElement("columnOverride"); //$NON-NLS-1$
-        xmlElement.addAttribute(new Attribute("column", columnName)); //$NON-NLS-1$
-
-        if (stringHasValue(javaProperty)) {
-            xmlElement.addAttribute(new Attribute("property", javaProperty)); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(javaType)) {
-            xmlElement.addAttribute(new Attribute("javaType", javaType)); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(jdbcType)) {
-            xmlElement.addAttribute(new Attribute("jdbcType", jdbcType)); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(typeHandler)) {
-            xmlElement.addAttribute(new Attribute("typeHandler", typeHandler)); //$NON-NLS-1$
-        }
-
-        if (stringHasValue(configuredDelimitedColumnName)) {
-            xmlElement.addAttribute(new Attribute(
-                    "delimitedColumnName", configuredDelimitedColumnName)); //$NON-NLS-1$
-        }
-
-        addPropertyXmlElements(xmlElement);
-
-        return xmlElement;
-    }
-
     public boolean isColumnNameDelimited() {
         return isColumnNameDelimited;
     }
 
     public void setColumnNameDelimited(boolean isColumnNameDelimited) {
         this.isColumnNameDelimited = isColumnNameDelimited;
-
-        configuredDelimitedColumnName = isColumnNameDelimited ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void validate(List<String> errors, String tableName) {
@@ -134,5 +97,13 @@ public class ColumnOverride extends PropertyHolder {
             errors.add(getString("ValidationError.22", //$NON-NLS-1$
                     tableName));
         }
+    }
+
+    public boolean isGeneratedAlways() {
+        return isGeneratedAlways;
+    }
+
+    public void setGeneratedAlways(boolean isGeneratedAlways) {
+        this.isGeneratedAlways = isGeneratedAlways;
     }
 }

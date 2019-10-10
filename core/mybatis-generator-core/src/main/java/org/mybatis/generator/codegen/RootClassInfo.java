@@ -1,17 +1,17 @@
-/*
- *  Copyright 2008 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.mybatis.generator.codegen;
 
@@ -26,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.ObjectFactory;
 
 /**
- * 
+ * Holds information about a class (uses the JavaBeans Introspector to find properties).
  * @author Jeff Butler
  * 
  */
@@ -44,18 +45,24 @@ public class RootClassInfo {
 
     public static RootClassInfo getInstance(String className,
             List<String> warnings) {
-        RootClassInfo classInfo = rootClassInfoMap.get(className);
-        if (classInfo == null) {
-            classInfo = new RootClassInfo(className, warnings);
-            rootClassInfoMap.put(className, classInfo);
-        }
+        return rootClassInfoMap.computeIfAbsent(className, k -> new RootClassInfo(k, warnings));
+    }
 
-        return classInfo;
+    /**
+     * Clears the internal map containing root class info.  This method should be called at the beginning of
+     * a generation run to clear the cached root class info in case there has been a change.
+     * For example, when using the eclipse launcher, the cache would be kept until eclipse
+     * was restarted.
+     * 
+     */
+    public static void reset() {
+        rootClassInfoMap.clear();
     }
 
     private PropertyDescriptor[] propertyDescriptors;
     private String className;
     private List<String> warnings;
+    private boolean genericMode = false;
 
     private RootClassInfo(String className, List<String> warnings) {
         super();
@@ -66,8 +73,14 @@ public class RootClassInfo {
             return;
         }
 
+        FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(className);
+        String nameWithoutGenerics = fqjt.getFullyQualifiedNameWithoutTypeParameters();
+        if (!nameWithoutGenerics.equals(className)) {
+            genericMode = true;
+        }
+
         try {
-            Class<?> clazz = ObjectFactory.externalClassForName(className);
+            Class<?> clazz = ObjectFactory.externalClassForName(nameWithoutGenerics);
             BeanInfo bi = Introspector.getBeanInfo(clazz);
             propertyDescriptors = bi.getPropertyDescriptors();
         } catch (Exception e) {
@@ -91,36 +104,58 @@ public class RootClassInfo {
         for (int i = 0; i < propertyDescriptors.length; i++) {
             PropertyDescriptor propertyDescriptor = propertyDescriptors[i];
 
-            if (propertyDescriptor.getName().equals(propertyName)) {
-                // property is in the rootClass...
-
-                // Is it the proper type?
-                if (!propertyDescriptor.getPropertyType().getName().equals(
-                        propertyType)) {
-                    warnings.add(getString("Warning.21", //$NON-NLS-1$
-                            propertyName, className, propertyType));
-                    break;
-                }
-
-                // Does it have a getter?
-                if (propertyDescriptor.getReadMethod() == null) {
-                    warnings.add(getString("Warning.22", //$NON-NLS-1$
-                            propertyName, className));
-                    break;
-                }
-
-                // Does it have a setter?
-                if (propertyDescriptor.getWriteMethod() == null) {
-                    warnings.add(getString("Warning.23", //$NON-NLS-1$
-                            propertyName, className));
-                    break;
-                }
-
+            if (hasProperty(propertyName, propertyType, propertyDescriptor)) {
                 found = true;
                 break;
             }
         }
 
         return found;
+    }
+    
+    private boolean hasProperty(String propertyName, String propertyType, PropertyDescriptor propertyDescriptor) {
+        return hasCorrectName(propertyName, propertyDescriptor)
+                && isProperType(propertyName, propertyType, propertyDescriptor)
+                && hasGetter(propertyName, propertyDescriptor)
+                && hasSetter(propertyName, propertyDescriptor);
+    }
+    
+    private boolean hasCorrectName(String propertyName, PropertyDescriptor propertyDescriptor) {
+        return propertyDescriptor.getName().equals(propertyName);
+    }
+    
+    private boolean isProperType(String propertyName, String propertyType, PropertyDescriptor propertyDescriptor) {
+        String introspectedPropertyType = propertyDescriptor.getPropertyType().getName();
+        if (genericMode && introspectedPropertyType.equals("java.lang.Object")) { //$NON-NLS-1$
+            // OK - but add a warning
+            warnings.add(getString("Warning.28", //$NON-NLS-1$
+                    propertyName, className));
+        } else if (!introspectedPropertyType.equals(propertyType)) {
+            warnings.add(getString("Warning.21", //$NON-NLS-1$
+                    propertyName, className, propertyType));
+            return false;
+        }
+        
+        return true;
+    }
+
+    private boolean hasGetter(String propertyName, PropertyDescriptor propertyDescriptor) {
+        if (propertyDescriptor.getReadMethod() == null) {
+            warnings.add(getString("Warning.22", //$NON-NLS-1$
+                    propertyName, className));
+            return false;
+        }
+        
+        return true;
+    }
+
+    private boolean hasSetter(String propertyName, PropertyDescriptor propertyDescriptor) {
+        if (propertyDescriptor.getWriteMethod() == null) {
+            warnings.add(getString("Warning.23", //$NON-NLS-1$
+                    propertyName, className));
+            return false;
+        }
+        
+        return true;
     }
 }

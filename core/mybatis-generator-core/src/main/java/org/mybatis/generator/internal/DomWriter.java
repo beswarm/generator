@@ -1,26 +1,24 @@
-/*
- *  Copyright 2007 The Apache Software Foundation
+/**
+ *    Copyright 2006-2019 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package org.mybatis.generator.internal;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 
 import org.mybatis.generator.exception.ShellException;
 import org.w3c.dom.Attr;
@@ -44,6 +42,7 @@ import org.w3c.dom.Text;
  * @author Jeff Butler (derivation)
  */
 public class DomWriter {
+
     protected PrintWriter printWriter;
 
     protected boolean isXML11;
@@ -57,15 +56,13 @@ public class DomWriter {
         StringWriter sw = new StringWriter();
         printWriter = new PrintWriter(sw);
         write(document);
-        String s = sw.toString();
-        return s;
+        return sw.toString();
     }
 
-    /** Returns a sorted list of attributes. */
     protected Attr[] sortAttributes(NamedNodeMap attrs) {
 
         int len = (attrs != null) ? attrs.getLength() : 0;
-        Attr array[] = new Attr[len];
+        Attr[] array = new Attr[len];
         for (int i = 0; i < len; i++) {
             array[i] = (Attr) attrs.item(i);
         }
@@ -90,7 +87,6 @@ public class DomWriter {
 
     }
 
-    /** Normalizes and prints the given string. */
     protected void normalizeAndPrint(String s, boolean isAttValue) {
 
         int len = (s != null) ? s.length() : 0;
@@ -98,88 +94,109 @@ public class DomWriter {
             char c = s.charAt(i);
             normalizeAndPrint(c, isAttValue);
         }
-
     }
 
-    /** Normalizes and print the given character. */
     protected void normalizeAndPrint(char c, boolean isAttValue) {
 
         switch (c) {
-        case '<': {
-            printWriter.print("&lt;"); //$NON-NLS-1$
+        case '<':
+            handleLessThan();
             break;
-        }
-        case '>': {
-            printWriter.print("&gt;"); //$NON-NLS-1$
+        case '>':
+            handleGreaterThan();
             break;
-        }
-        case '&': {
-            printWriter.print("&amp;"); //$NON-NLS-1$
+        case '&':
+            handleAmpersand();
             break;
-        }
-        case '"': {
-            // A '"' that appears in character data
-            // does not need to be escaped.
-            if (isAttValue) {
-                printWriter.print("&quot;"); //$NON-NLS-1$
-            } else {
-                printWriter.print('"');
-            }
+        case '"':
+            handleDoubleQuote(isAttValue);
             break;
-        }
-        case '\r': {
-            // If CR is part of the document's content, it
-            // must not be printed as a literal otherwise
-            // it would be normalized to LF when the document
-            // is reparsed.
-            printWriter.print("&#xD;"); //$NON-NLS-1$
+        case '\r':
+            handleCarriageReturn();
             break;
-        }
-        default: {
-            // In XML 1.1, control chars in the ranges [#x1-#x1F, #x7F-#x9F]
-            // must be escaped.
-            //
-            // Escape space characters that would be normalized to #x20 in
-            // attribute values
-            // when the document is reparsed.
-            //
-            // Escape NEL (0x85) and LSEP (0x2028) that appear in content
-            // if the document is XML 1.1, since they would be normalized to LF
-            // when the document is reparsed.
-            if (isXML11
-                    && ((c >= 0x01 && c <= 0x1F && c != 0x09 && c != 0x0A)
-                            || (c >= 0x7F && c <= 0x9F) || c == 0x2028)
-                    || isAttValue && (c == 0x09 || c == 0x0A)) {
-                printWriter.print("&#x"); //$NON-NLS-1$
-                printWriter.print(Integer.toHexString(c).toUpperCase());
-                printWriter.print(';');
-            } else {
-                printWriter.print(c);
-            }
-        }
+        case '\n':
+            handleLineFeed();
+            break;
+        default:
+            handleDefault(c, isAttValue);
         }
     }
 
-    /** Extracts the XML version from the Document. */
+    private void handleDefault(char c, boolean isAttValue) {
+        // In XML 1.1, control chars in the ranges [#x1-#x1F, #x7F-#x9F]
+        // must be escaped.
+        //
+        // Escape space characters that would be normalized to #x20 in
+        // attribute values
+        // when the document is reparsed.
+        //
+        // Escape NEL (0x85) and LSEP (0x2028) that appear in content
+        // if the document is XML 1.1, since they would be normalized to LF
+        // when the document is reparsed.
+        if (isXML11
+                && ((c >= 0x01 && c <= 0x1F && c != 0x09 && c != 0x0A)
+                        || (c >= 0x7F && c <= 0x9F) || c == 0x2028)
+                || isAttValue && (c == 0x09 || c == 0x0A)) {
+            printWriter.print("&#x"); //$NON-NLS-1$
+            printWriter.print(Integer.toHexString(c).toUpperCase());
+            printWriter.print(';');
+        } else {
+            printWriter.print(c);
+        }
+    }
+
+    private void handleLineFeed() {
+        // If LF is part of the document's content, it
+        // should be printed back out with the system default
+        // line separator.  XML parsing forces \n only after a parse,
+        // but we should write it out as it was to avoid whitespace
+        // commits on some version control systems.
+        printWriter.print(System.getProperty("line.separator")); //$NON-NLS-1$
+    }
+
+    private void handleCarriageReturn() {
+        // If CR is part of the document's content, it
+        // must be printed as a literal otherwise
+        // it would be normalized to LF when the document
+        // is reparsed.
+        printWriter.print("&#xD;"); //$NON-NLS-1$
+    }
+
+    private void handleDoubleQuote(boolean isAttValue) {
+        // A '"' that appears in character data
+        // does not need to be escaped.
+        if (isAttValue) {
+            printWriter.print("&quot;"); //$NON-NLS-1$
+        } else {
+            printWriter.print('"');
+        }
+    }
+
+    private void handleAmpersand() {
+        printWriter.print("&amp;"); //$NON-NLS-1$
+    }
+
+    private void handleGreaterThan() {
+        printWriter.print("&gt;"); //$NON-NLS-1$
+    }
+
+    private void handleLessThan() {
+        printWriter.print("&lt;"); //$NON-NLS-1$
+    }
+
+    /**
+     * Extracts the XML version from the Document.
+     *
+     * @param document
+     *            the document
+     * @return the version
+     */
     protected String getVersion(Document document) {
         if (document == null) {
             return null;
         }
-        String version = null;
-        Method getXMLVersion = null;
-        try {
-            getXMLVersion = document.getClass().getMethod("getXmlVersion", //$NON-NLS-1$
-                    new Class[] {});
-            // If Document class implements DOM L3, this method will exist.
-            if (getXMLVersion != null) {
-                version = (String) getXMLVersion.invoke(document,
-                        (Object[]) null);
-            }
-        } catch (Exception e) {
-            // Either this locator object doesn't have
-            // this method, or we're on an old JDK.
-        }
-        return version;
+
+        return document.getXmlVersion();
     }
 
     protected void writeAnyNode(Node node) throws ShellException {
@@ -240,7 +257,7 @@ public class DomWriter {
         write(node.getDocumentElement());
     }
 
-    protected void write(DocumentType node) throws ShellException {
+    protected void write(DocumentType node) {
         printWriter.print("<!DOCTYPE "); //$NON-NLS-1$
         printWriter.print(node.getName());
         String publicId = node.getPublicId();
@@ -269,7 +286,7 @@ public class DomWriter {
     protected void write(Element node) throws ShellException {
         printWriter.print('<');
         printWriter.print(node.getNodeName());
-        Attr attrs[] = sortAttributes(node.getAttributes());
+        Attr[] attrs = sortAttributes(node.getAttributes());
         for (Attr attr : attrs) {
             printWriter.print(' ');
             printWriter.print(attr.getNodeName());
@@ -307,7 +324,19 @@ public class DomWriter {
 
     protected void write(CDATASection node) {
         printWriter.print("<![CDATA["); //$NON-NLS-1$
-        printWriter.print(node.getNodeValue());
+        String data = node.getNodeValue();
+        // XML parsers normalize line endings to '\n'.  We should write
+        // it out as it was in the original to avoid whitespace commits
+        // on some version control systems
+        int len = (data != null) ? data.length() : 0;
+        for (int i = 0; i < len; i++) {
+            char c = data.charAt(i);
+            if (c == '\n') {
+                handleLineFeed();
+            } else {
+                printWriter.print(c);
+            }
+        }
         printWriter.print("]]>"); //$NON-NLS-1$
         printWriter.flush();
     }
@@ -333,7 +362,7 @@ public class DomWriter {
         printWriter.print("<!--"); //$NON-NLS-1$
         String comment = node.getNodeValue();
         if (comment != null && comment.length() > 0) {
-            printWriter.print(comment);
+            normalizeAndPrint(comment, false);
         }
         printWriter.print("-->"); //$NON-NLS-1$
         printWriter.flush();
